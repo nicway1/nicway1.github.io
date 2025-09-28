@@ -12,11 +12,14 @@
             <div class="nav-logo">
                 <h1>📚 StudySpace</h1>
             </div>
-            <ul class="nav-menu">
-                <li><a href="#home" class="nav-link active">Home</a></li>
-                <li><a href="#bookings" class="nav-link">My Bookings</a></li>
-                <li><a href="#favorites" class="nav-link">Favorites</a></li>
-            </ul>
+            <div class="nav-actions">
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link active">Home</a></li>
+                    <li><a href="#bookings" class="nav-link">My Bookings</a></li>
+                    <li><a href="#favorites" class="nav-link">Favorites</a></li>
+                </ul>
+                <button id="themeToggle" class="theme-toggle-btn" type="button" aria-label="Switch to dark mode">🌙</button>
+            </div>
         </div>
     </nav>
 
@@ -68,12 +71,43 @@
                     </div>
                 </div>
 
-                <div class="filter-bar">
-                    <button class="filter-btn" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="power">🔌 Power</button>
-                    <button class="filter-btn" data-filter="window">🪟 Window</button>
-                    <button class="filter-btn" data-filter="corner">🏠 Corner</button>
-                    <button class="filter-btn" data-filter="quiet">🤫 Quiet</button>
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <h4>By Facilities</h4>
+                        <div class="filter-bar">
+                            <button class="filter-btn" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="power">🔌 Power</button>
+                            <button class="filter-btn" data-filter="window">🪟 Window</button>
+                            <button class="filter-btn" data-filter="corner">🏠 Corner</button>
+                            <button class="filter-btn" data-filter="quiet">🤫 Quiet</button>
+                            <button class="filter-btn" data-filter="wheelchair">♿ Accessible</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>By Region</h4>
+                        <div class="region-filter-bar">
+                            <button class="region-filter-btn active" data-region="all">🌐 All Regions</button>
+                            <button class="region-filter-btn" data-region="Central">🏙️ Central</button>
+                            <button class="region-filter-btn" data-region="North">⬆️ North</button>
+                            <button class="region-filter-btn" data-region="East">➡️ East</button>
+                            <button class="region-filter-btn" data-region="West">⬅️ West</button>
+                            <button class="region-filter-btn" data-region="North-East">↗️ North-East</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>Sort & Location</h4>
+                        <div class="sort-location-bar">
+                            <select id="sortSelect" class="sort-select">
+                                <option value="default">Sort by Relevance</option>
+                                <option value="alphabetical">Sort A-Z</option>
+                                <option value="distance">Sort by Distance</option>
+                                <option value="availability">Sort by Availability</option>
+                            </select>
+                            <button id="findNearbyBtn" class="find-nearby-btn">📍 Find Nearby</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

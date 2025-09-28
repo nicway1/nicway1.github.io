@@ -1,6 +1,11 @@
 let currentLocation = null;
+let currentFloor = null;
 let selectedSeats = [];
 let currentView = 'home';
+let userLocation = null;
+let currentRegion = 'all';
+let currentSort = 'default';
+const THEME_STORAGE_KEY = 'studyspace-theme';
 let searchFilters = {
     date: null,
     time: null,
@@ -12,14 +17,86 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    setupThemeToggle();
     setupNavigation();
+    loadUserData();
     setupSearch();
     setupFilters();
     displayLocations();
     setupModal();
-    loadUserData();
 
     setInterval(simulateRealTimeUpdates, 30000);
+}
+
+function setupThemeToggle() {
+    const toggleBtn = document.getElementById('themeToggle');
+    if (!toggleBtn) {
+        return;
+    }
+
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const storedTheme = getStoredTheme();
+    const initialTheme = storedTheme || (prefersDarkScheme.matches ? 'dark' : 'light');
+
+    applyTheme(initialTheme);
+
+    toggleBtn.addEventListener('click', () => {
+        const nextTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+        applyTheme(nextTheme);
+        setStoredTheme(nextTheme);
+    });
+
+    const handleSchemeChange = (event) => {
+        if (!getStoredTheme()) {
+            applyTheme(event.matches ? 'dark' : 'light');
+        }
+    };
+
+    if (typeof prefersDarkScheme.addEventListener === 'function') {
+        prefersDarkScheme.addEventListener('change', handleSchemeChange);
+    } else if (typeof prefersDarkScheme.addListener === 'function') {
+        prefersDarkScheme.addListener(handleSchemeChange);
+    }
+}
+
+function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    document.body.classList.toggle('dark-theme', isDark);
+    document.body.setAttribute('data-theme', theme);
+    updateThemeToggleLabel(theme);
+}
+
+function updateThemeToggleLabel(theme) {
+    const toggleBtn = document.getElementById('themeToggle');
+    if (!toggleBtn) {
+        return;
+    }
+
+    if (theme === 'dark') {
+        toggleBtn.textContent = '☀️';
+        toggleBtn.setAttribute('aria-label', 'Switch to light mode');
+        toggleBtn.setAttribute('title', 'Switch to light mode');
+    } else {
+        toggleBtn.textContent = '🌙';
+        toggleBtn.setAttribute('aria-label', 'Switch to dark mode');
+        toggleBtn.setAttribute('title', 'Switch to dark mode');
+    }
+}
+
+function getStoredTheme() {
+    try {
+        return localStorage.getItem(THEME_STORAGE_KEY);
+    } catch (error) {
+        return null;
+    }
+}
+
+function setStoredTheme(theme) {
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (error) {
+        // Ignore storage errors (e.g., private browsing)
+    }
 }
 
 function setupNavigation() {
@@ -147,25 +224,53 @@ function setupFilters() {
         });
     });
 
-    // Setup facility filters
+    // Setup facility filters with multi-select capability
     const filterButtons = document.querySelectorAll('.filter-btn');
+    let activeFilters = [];
 
     filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
             const filter = btn.dataset.filter;
+
             if (filter === 'all') {
+                // Clear all filters
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeFilters = [];
                 displayLocations();
             } else {
-                const filteredLocations = studyLocations.filter(location =>
-                    location.facilities.includes(filter)
-                );
-                displayFilteredLocations(filteredLocations);
+                // Toggle filter selection
+                const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+                allBtn.classList.remove('active');
+
+                if (btn.classList.contains('active')) {
+                    // Remove filter
+                    btn.classList.remove('active');
+                    activeFilters = activeFilters.filter(f => f !== filter);
+                } else {
+                    // Add filter
+                    btn.classList.add('active');
+                    activeFilters.push(filter);
+                }
+
+                // Apply filters
+                if (activeFilters.length === 0) {
+                    displayLocations();
+                } else {
+                    const filteredLocations = studyLocations.filter(location =>
+                        activeFilters.every(filter => location.facilities.includes(filter))
+                    );
+                    displayFilteredLocations(filteredLocations);
+                }
             }
         });
     });
+
+    // Setup region filters
+    setupRegionFilters();
+
+    // Setup sorting and location features
+    setupSortingAndLocation();
 
     // Update counts
     updateTypeCounts();
@@ -184,6 +289,157 @@ function filterLocationsByType(type) {
     return studyLocations.filter(location =>
         targetTypes.includes(location.type)
     );
+}
+
+function setupRegionFilters() {
+    const regionFilterButtons = document.querySelectorAll('.region-filter-btn');
+
+    regionFilterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            regionFilterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            currentRegion = btn.dataset.region;
+            applyAllFilters();
+        });
+    });
+}
+
+function setupSortingAndLocation() {
+    const sortSelect = document.getElementById('sortSelect');
+    const findNearbyBtn = document.getElementById('findNearbyBtn');
+
+    // Setup sorting
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            currentSort = sortSelect.value;
+            applyAllFilters();
+        });
+    }
+
+    // Setup location detection
+    if (findNearbyBtn) {
+        findNearbyBtn.addEventListener('click', () => {
+            findNearbyLocations();
+        });
+    }
+}
+
+function applyAllFilters() {
+    let filteredLocations = [...studyLocations];
+
+    // Apply region filter
+    if (currentRegion !== 'all') {
+        filteredLocations = filteredLocations.filter(location =>
+            location.region === currentRegion
+        );
+    }
+
+    // Apply facility filters (existing logic)
+    const activeFilterButtons = document.querySelectorAll('.filter-btn.active:not([data-filter="all"])');
+    const facilityFilters = Array.from(activeFilterButtons).map(btn => btn.dataset.filter);
+
+    if (facilityFilters.length > 0) {
+        filteredLocations = filteredLocations.filter(location =>
+            facilityFilters.every(filter => location.facilities.includes(filter))
+        );
+    }
+
+    // Apply sorting
+    filteredLocations = sortLocations(filteredLocations);
+
+    displayFilteredLocations(filteredLocations);
+}
+
+function sortLocations(locations) {
+    switch (currentSort) {
+        case 'alphabetical':
+            return locations.sort((a, b) => a.name.localeCompare(b.name));
+
+        case 'availability':
+            return locations.sort((a, b) => b.availableSeats - a.availableSeats);
+
+        case 'distance':
+            if (userLocation) {
+                return locations.sort((a, b) => {
+                    const distanceA = calculateDistance(userLocation, a.coordinates);
+                    const distanceB = calculateDistance(userLocation, b.coordinates);
+                    return distanceA - distanceB;
+                });
+            }
+            return locations;
+
+        default:
+            return locations;
+    }
+}
+
+function findNearbyLocations() {
+    const findNearbyBtn = document.getElementById('findNearbyBtn');
+
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by this browser.');
+        return;
+    }
+
+    findNearbyBtn.disabled = true;
+    findNearbyBtn.textContent = '📍 Finding...';
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+
+            // Switch to distance sorting
+            currentSort = 'distance';
+            document.getElementById('sortSelect').value = 'distance';
+
+            // Apply filters with distance sorting
+            applyAllFilters();
+
+            findNearbyBtn.disabled = false;
+            findNearbyBtn.textContent = '📍 Location Found';
+
+            // Show success message
+            setTimeout(() => {
+                findNearbyBtn.textContent = '📍 Find Nearby';
+            }, 3000);
+        },
+        (error) => {
+            console.error('Error getting location:', error);
+
+            // Use mock Singapore location (City Hall area)
+            userLocation = {
+                lat: 1.2941,
+                lng: 103.8509
+            };
+
+            currentSort = 'distance';
+            document.getElementById('sortSelect').value = 'distance';
+            applyAllFilters();
+
+            findNearbyBtn.disabled = false;
+            findNearbyBtn.textContent = '📍 Using Mock Location';
+
+            setTimeout(() => {
+                findNearbyBtn.textContent = '📍 Find Nearby';
+            }, 3000);
+        }
+    );
+}
+
+function calculateDistance(point1, point2) {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (point2.lat - point1.lat) * Math.PI / 180;
+    const dLng = (point2.lng - point1.lng) * Math.PI / 180;
+    const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(point1.lat * Math.PI / 180) * Math.cos(point2.lat * Math.PI / 180) *
+        Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in km
 }
 
 function updateTypeCounts() {
@@ -211,7 +467,7 @@ function displayLocations() {
 function displayFilteredLocations(locations) {
     const grid = document.getElementById('locationsGrid');
 
-    if (locations.length === 0) {
+    if (!locations || locations.length === 0) {
         grid.innerHTML = `
             <div class="empty-state">
                 <h3>No locations found</h3>
@@ -256,12 +512,34 @@ function createLocationCard(location) {
         `;
     }
 
+    // Add distance badge if user location is available and distance sorting is active
+    let distanceBadge = '';
+    if (userLocation && location.coordinates && currentSort === 'distance') {
+        const distance = calculateDistance(userLocation, location.coordinates);
+        distanceBadge = `<div class="distance-badge">${distance.toFixed(1)} km away</div>`;
+    }
+
+    // Add region badge
+    let regionBadge = '';
+    if (location.region) {
+        const regionIcons = {
+            'Central': '🏙️',
+            'North': '⬆️',
+            'East': '➡️',
+            'West': '⬅️',
+            'North-East': '↗️'
+        };
+        regionBadge = `<div class="region-badge">${regionIcons[location.region] || '📍'} ${location.region}</div>`;
+    }
+
     return `
         <div class="location-card fade-in" style="position: relative;">
             <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" data-location-id="${location.id}">
                 ${isFavorite ? '❤️' : '🤍'}
             </button>
             <div class="location-image" style="background-image: url('${location.image}')"></div>
+            ${distanceBadge}
+            ${regionBadge}
             <h3>${location.name}</h3>
             <p class="type">${location.type}</p>
             ${timeInfo}
@@ -292,7 +570,8 @@ function getFacilityIcon(facility) {
         quiet: '🤫',
         group: '👥',
         window: '🪟',
-        corner: '🏠'
+        corner: '🏠',
+        wheelchair: '♿'
     };
     return icons[facility] || '✓';
 }
@@ -305,14 +584,131 @@ function viewLocationDetails(location) {
 
     document.getElementById('locationName').textContent = location.name;
     document.getElementById('locationAddress').textContent = location.address;
-    document.getElementById('availableSeats').textContent = `${location.availableSeats}/${location.totalSeats}`;
-    document.getElementById('crowdLevel').textContent = location.crowdLevel;
-    document.getElementById('crowdLevel').className = `stat-value crowd-level crowd-${location.crowdLevel}`;
 
-    generateSeatMap(location);
+    // Handle multi-floor libraries
+    if (location.hasFloors && location.floors) {
+        // Show total stats across all floors
+        document.getElementById('availableSeats').textContent = `${location.availableSeats}/${location.totalSeats}`;
+        document.getElementById('crowdLevel').textContent = location.crowdLevel;
+        document.getElementById('crowdLevel').className = `stat-value crowd-level crowd-${location.crowdLevel}`;
+
+        // Create floor selection UI
+        createFloorSelector(location);
+
+        // Default to first floor
+        currentFloor = location.floors[0];
+        generateFloorSeatMap(currentFloor);
+    } else {
+        // Regular single-floor location
+        document.getElementById('availableSeats').textContent = `${location.availableSeats}/${location.totalSeats}`;
+        document.getElementById('crowdLevel').textContent = location.crowdLevel;
+        document.getElementById('crowdLevel').className = `stat-value crowd-level crowd-${location.crowdLevel}`;
+
+        generateSeatMap(location);
+    }
+
     setupBookingControls();
-
     navigateToPage('location-details');
+}
+
+function createFloorSelector(location) {
+    const seatMap = document.getElementById('seatMap');
+
+    // Create floor selector UI
+    const floorSelector = `
+        <div class="floor-selector">
+            <h3>Select Floor</h3>
+            <div class="floor-buttons">
+                ${location.floors.map((floor, index) => `
+                    <button class="floor-btn ${index === 0 ? 'active' : ''}" data-floor-index="${index}">
+                        <div class="floor-info">
+                            <span class="floor-name">${floor.floorName}</span>
+                            <span class="floor-description">${floor.description}</span>
+                            <span class="floor-availability">${floor.availableSeats}/${floor.totalSeats} available</span>
+                        </div>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+        <div id="floorSeatMap" class="seat-map-container">
+            <!-- Floor seat map will be inserted here -->
+        </div>
+    `;
+
+    seatMap.innerHTML = floorSelector;
+
+    // Add floor button listeners
+    seatMap.querySelectorAll('.floor-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const floorIndex = parseInt(btn.dataset.floorIndex);
+            selectFloor(location, floorIndex);
+        });
+    });
+}
+
+function selectFloor(location, floorIndex) {
+    currentFloor = location.floors[floorIndex];
+
+    // Update active floor button
+    document.querySelectorAll('.floor-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-floor-index="${floorIndex}"]`).classList.add('active');
+
+    // Clear seat selection when changing floors
+    selectedSeats = [];
+
+    // Generate seat map for selected floor
+    generateFloorSeatMap(currentFloor);
+
+    // Update booking button
+    updateBookingButton();
+}
+
+function generateFloorSeatMap(floor) {
+    const floorSeatMapContainer = document.getElementById('floorSeatMap');
+
+    const floorMapHTML = `
+        <div class="floor-header">
+            <h4>${floor.floorName}</h4>
+            <p>${floor.description}</p>
+            <div class="floor-image">
+                <img src="${floor.image}" alt="${floor.floorName}" style="width: 100%; max-width: 400px; height: 200px; object-fit: cover; border-radius: 8px;">
+            </div>
+        </div>
+        <div class="seat-map" id="actualSeatMap">
+            ${floor.seats.map(seat => {
+                let seatClass = seat.status === 'available' ? 'available' : 'occupied';
+
+                // Add selected class if this seat is in selectedSeats array
+                if (selectedSeats.includes(seat.id)) {
+                    seatClass += ' selected';
+                }
+
+                const icons = getSeatIcons(seat);
+
+                return `
+                    <div class="seat ${seatClass}" data-seat-id="${seat.id}" ${seat.status === 'available' ? '' : 'style="cursor: not-allowed;"'}>
+                        <span class="seat-number">${seat.id}</span>
+                        <div class="seat-icons">${icons}</div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    floorSeatMapContainer.innerHTML = floorMapHTML;
+
+    // Add click listeners to seats
+    floorSeatMapContainer.querySelectorAll('.seat').forEach(seatElement => {
+        const seatId = parseInt(seatElement.dataset.seatId);
+        const seat = floor.seats.find(s => s.id === seatId);
+
+        // Only add click listener if seat is available or already selected
+        if (seat.status === 'available' || selectedSeats.includes(seatId)) {
+            seatElement.addEventListener('click', () => {
+                selectSeat(seatId);
+            });
+        }
+    });
 }
 
 function generateSeatMap(location) {
@@ -366,6 +762,16 @@ function selectSeat(seatId) {
     const seatElement = document.querySelector(`[data-seat-id="${seatId}"]`);
 
     if (!seatElement) return;
+
+    // Find the seat in current location or floor
+    let seat = null;
+    if (currentFloor) {
+        seat = currentFloor.seats.find(s => s.id === seatId);
+    } else if (currentLocation) {
+        seat = currentLocation.seats.find(s => s.id === seatId);
+    }
+
+    if (!seat) return;
 
     // Check if seat is already selected
     if (selectedSeats.includes(seatId)) {
@@ -556,22 +962,24 @@ function showBookingSummary() {
     // Populate facilities
     const facilityIcons = {
         power: '🔌',
-        wifi: '📶', 
+        wifi: '📶',
         aircon: '❄️',
         quiet: '🤫',
         group: '👥',
         window: '🪟',
-        corner: '🏠'
+        corner: '🏠',
+        wheelchair: '♿'
     };
 
     const facilityNames = {
         power: 'Power outlets',
         wifi: 'WiFi',
-        aircon: 'Air conditioning', 
+        aircon: 'Air conditioning',
         quiet: 'Quiet zone',
         group: 'Group study',
         window: 'Window seats',
-        corner: 'Corner seats'
+        corner: 'Corner seats',
+        wheelchair: 'Wheelchair accessible'
     };
 
     // Create facility tags
@@ -732,12 +1140,14 @@ function displayBookings() {
     console.log('Current time:', now);
 
     // Debug each booking's date
-    bookings.forEach((booking, index) => {
-        const bookingDate = new Date(booking.dateTime);
-        console.log(`Booking ${index}: dateTime = ${booking.dateTime}, parsed = ${bookingDate}, is future? ${bookingDate > now}`);
-    });
+    if (bookings && bookings.length > 0) {
+        bookings.forEach((booking, index) => {
+            const bookingDate = new Date(booking.dateTime);
+            console.log(`Booking ${index}: dateTime = ${booking.dateTime}, parsed = ${bookingDate}, is future? ${bookingDate > now}`);
+        });
+    }
 
-    const activeBookings = bookings.filter(booking => new Date(booking.dateTime) > now);
+    const activeBookings = bookings ? bookings.filter(booking => new Date(booking.dateTime) > now) : [];
     console.log('Active bookings (future):', activeBookings);
 
     if (activeBookings.length === 0) {
@@ -904,14 +1314,40 @@ function getAvailableSeatsForDateTime(location, date, time, durationHours) {
     const searchDateTime = new Date(`${date}T${time}`);
     const endDateTime = new Date(searchDateTime.getTime() + durationHours * 60 * 60 * 1000);
 
+    // Debug logging
+    console.log('getAvailableSeatsForDateTime called for location:', location.name);
+    console.log('hasFloors:', location.hasFloors);
+    console.log('floors:', location.floors);
+    console.log('seats:', location.seats);
+
     // Count seats that are not booked during the requested time period
     let availableCount = 0;
 
-    location.seats.forEach(seat => {
+    // Handle multi-floor libraries
+    let allSeats = [];
+    if (location.hasFloors && location.floors && Array.isArray(location.floors)) {
+        // Collect all seats from all floors
+        location.floors.forEach(floor => {
+            if (floor && floor.seats && Array.isArray(floor.seats)) {
+                allSeats = allSeats.concat(floor.seats);
+            }
+        });
+    } else if (location.seats && Array.isArray(location.seats)) {
+        // Regular single-floor location
+        allSeats = location.seats;
+    }
+
+    // Safety check for allSeats
+    if (!Array.isArray(allSeats)) {
+        return 0;
+    }
+
+    allSeats.forEach(seat => {
         let isAvailable = true;
 
         // Check against existing bookings
-        bookings.forEach(booking => {
+        if (bookings && bookings.length > 0) {
+            bookings.forEach(booking => {
             if (booking.locationId === location.id && booking.seatId === seat.id) {
                 const bookingStart = new Date(booking.dateTime);
                 // Use the actual booking duration or default to 2 hours
@@ -923,7 +1359,8 @@ function getAvailableSeatsForDateTime(location, date, time, durationHours) {
                     isAvailable = false;
                 }
             }
-        });
+            });
+        }
 
         // For current time or future times, also check current status
         const now = new Date();
@@ -946,7 +1383,16 @@ function isSearchingWithDateTime() {
 }
 
 function simulateRealTimeUpdates() {
+    if (!studyLocations || studyLocations.length === 0) {
+        return;
+    }
+
     studyLocations.forEach(location => {
+        // Skip multi-floor libraries as they don't have direct seats
+        if (location.hasFloors || !location.seats) {
+            return;
+        }
+
         if (Math.random() < 0.3) {
             const availableSeats = location.seats.filter(s => s.status === 'available');
             const occupiedSeats = location.seats.filter(s => s.status === 'occupied');
@@ -957,7 +1403,7 @@ function simulateRealTimeUpdates() {
                 location.availableSeats--;
             } else if (occupiedSeats.length > 0) {
                 const isBookedSeat = occupiedSeats.some(seat =>
-                    bookings.some(booking =>
+                    bookings && bookings.some(booking =>
                         booking.locationId === location.id &&
                         booking.seatId === seat.id
                     )
