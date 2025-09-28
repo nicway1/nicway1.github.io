@@ -678,6 +678,11 @@ function generateFloorSeatMap(floor) {
             ${floor.seats.map(seat => {
                 let seatClass = seat.status === 'available' ? 'available' : 'occupied';
 
+                // Check for premium seats (seats with both power and corner position)
+                if (seat.type === 'power' && seat.position === 'corner') {
+                    seatClass += ' premium';
+                }
+
                 // Add selected class if this seat is in selectedSeats array
                 if (selectedSeats.includes(seat.id)) {
                     seatClass += ' selected';
@@ -716,6 +721,11 @@ function generateSeatMap(location) {
 
     seatMap.innerHTML = location.seats.map(seat => {
         let seatClass = seat.status === 'available' ? 'available' : 'occupied';
+
+        // Check for premium seats (seats with both power and corner position, or corner seats in premium locations)
+        if (seat.type === 'power' && seat.position === 'corner') {
+            seatClass += ' premium';
+        }
 
         // Add selected class if this seat is in selectedSeats array
         if (selectedSeats.includes(seat.id)) {
@@ -933,14 +943,27 @@ function showBookingSummary() {
     const groupSize = parseInt(document.getElementById('groupSize').value);
 
     // Populate summary page
-    document.getElementById('summaryLocationName').textContent = currentLocation.name;
+    let locationName = currentLocation.name;
+    if (currentFloor) {
+        locationName += ` - ${currentFloor.floorName}`;
+    }
+    document.getElementById('summaryLocationName').textContent = locationName;
     document.getElementById('summaryLocationAddress').textContent = currentLocation.address;
     document.getElementById('summaryGroupSize').textContent = `${groupSize} ${groupSize === 1 ? 'person' : 'people'}`;
 
     // Populate seat details
     const seatsDetailsContainer = document.getElementById('summarySeatsDetails');
     const seatDetails = selectedSeats.map(seatId => {
-        const seat = currentLocation.seats.find(s => s.id === seatId);
+        // Find seat in either currentFloor (for multi-floor) or currentLocation (for single-floor)
+        let seat = null;
+        if (currentFloor) {
+            seat = currentFloor.seats.find(s => s.id === seatId);
+        } else if (currentLocation) {
+            seat = currentLocation.seats.find(s => s.id === seatId);
+        }
+
+        if (!seat) return `Seat ${seatId}`;
+
         const features = [];
         if (seat.type === 'power') features.push('⚡');
         if (seat.position === 'window') features.push('🪟');
@@ -1014,7 +1037,18 @@ function confirmFinalBooking() {
     const groupBookings = [];
 
     selectedSeats.forEach((seatId, index) => {
-        const seat = currentLocation.seats.find(s => s.id === seatId);
+        // Find seat in either currentFloor (for multi-floor) or currentLocation (for single-floor)
+        let seat = null;
+        if (currentFloor) {
+            seat = currentFloor.seats.find(s => s.id === seatId);
+        } else if (currentLocation) {
+            seat = currentLocation.seats.find(s => s.id === seatId);
+        }
+
+        let locationName = currentLocation.name;
+        if (currentFloor) {
+            locationName += ` - ${currentFloor.floorName}`;
+        }
 
         const booking = {
             id: groupBookingId + index,
@@ -1022,7 +1056,8 @@ function confirmFinalBooking() {
             groupSize: groupSize,
             groupIndex: index + 1,
             locationId: currentLocation.id,
-            locationName: currentLocation.name,
+            locationName: locationName,
+            floorId: currentFloor ? currentFloor.floorNumber : null,
             seatId: seatId,
             seatType: seat.type,
             seatPosition: seat.position,

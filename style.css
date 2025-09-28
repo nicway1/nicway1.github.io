@@ -430,18 +430,18 @@ body.dark-theme .theme-toggle-btn:focus-visible {
 }
 
 .crowd-low {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #e6f3ff;
+    color: #1E90FF;
 }
 
 .crowd-moderate {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: #fff4e6;
+    color: #FF8C00;
 }
 
 .crowd-high {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #ffe6e6;
+    color: #DC143C;
 }
 
 .facilities {
@@ -542,15 +542,20 @@ body.dark-theme .theme-toggle-btn:focus-visible {
 }
 
 .seat-demo.available {
-    background-color: #4CAF50;
+    background-color: #FF8C00;
 }
 
 .seat-demo.occupied {
-    background-color: #F44336;
+    background-color: #DC143C;
 }
 
 .seat-demo.selected {
-    background-color: #2196F3;
+    background-color: #1E90FF;
+}
+
+.seat-demo.premium {
+    background-color: #8B4513;
+    border: 2px solid #D2691E;
 }
 
 .seat-map {
@@ -584,21 +589,35 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     transform: scale(1.1);
 }
 
+.seat.available:hover {
+    background-color: #FF7F00;
+}
+
+.seat.premium:hover {
+    background-color: #A0522D;
+}
+
 .seat.available {
-    background-color: #4CAF50;
+    background-color: #FF8C00;
     color: white;
 }
 
 .seat.occupied {
-    background-color: #F44336;
+    background-color: #DC143C;
     color: white;
     cursor: not-allowed;
 }
 
 .seat.selected {
-    background-color: #2196F3;
+    background-color: #1E90FF;
     color: white;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+    box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.3);
+}
+
+.seat.premium {
+    background-color: #8B4513;
+    color: white;
+    border: 2px solid #D2691E;
 }
 
 .seat-number {
