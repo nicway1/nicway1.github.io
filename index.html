@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudySpace - Book Your Perfect Study Spot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>📚 StudySpace</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#bookings" class="nav-link">My Bookings</a></li>
+                <li><a href="#favorites" class="nav-link">Favorites</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <div class="hero-section">
+                <h2>Find Your Perfect Study Space</h2>
+                <p>Book seats at the best study locations in Singapore</p>
+
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search locations..." class="search-input">
+                    <input type="date" id="searchDate" class="search-date">
+                    <input type="time" id="searchTime" class="search-time">
+                    <select id="searchDuration" class="search-duration">
+                        <option value="1">1 hour</option>
+                        <option value="2" selected>2 hours</option>
+                        <option value="3">3 hours</option>
+                        <option value="4">4 hours</option>
+                        <option value="6">6 hours</option>
+                        <option value="8">8 hours</option>
+                    </select>
+                    <button class="search-btn">🔍</button>
+                </div>
+
+                <div class="type-filter-section">
+                    <h3>Study Space Types</h3>
+                    <div class="type-filter-bar">
+                        <button class="type-filter-btn active" data-type="all">
+                            <span class="icon">🏛️</span>
+                            <span class="label">All Locations</span>
+                            <span class="count" id="allCount">27</span>
+                        </button>
+                        <button class="type-filter-btn" data-type="library">
+                            <span class="icon">📚</span>
+                            <span class="label">Libraries</span>
+                            <span class="count" id="libraryCount">19</span>
+                        </button>
+                        <button class="type-filter-btn" data-type="university">
+                            <span class="icon">🎓</span>
+                            <span class="label">Universities</span>
+                            <span class="count" id="universityCount">7</span>
+                        </button>
+                        <button class="type-filter-btn" data-type="community">
+                            <span class="icon">🏢</span>
+                            <span class="label">Community Centers</span>
+                            <span class="count" id="communityCount">8</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <button class="filter-btn" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="power">🔌 Power</button>
+                    <button class="filter-btn" data-filter="window">🪟 Window</button>
+                    <button class="filter-btn" data-filter="corner">🏠 Corner</button>
+                    <button class="filter-btn" data-filter="quiet">🤫 Quiet</button>
+                </div>
+            </div>
+
+            <div class="locations-grid" id="locationsGrid">
+                <!-- Location cards will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Location Details Page -->
+        <section id="location-details" class="page">
+            <div class="location-header">
+                <button class="back-btn">← Back</button>
+                <div class="location-info">
+                    <h2 id="locationName"></h2>
+                    <p id="locationAddress"></p>
+                    <div class="location-stats">
+                        <span class="stat">
+                            <span class="stat-label">Available Seats:</span>
+                            <span id="availableSeats" class="stat-value"></span>
+                        </span>
+                        <span class="stat">
+                            <span class="stat-label">Crowd Level:</span>
+                            <span id="crowdLevel" class="stat-value"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="seat-selection">
+                <h3>Select Your Seat</h3>
+                <div class="seat-legend">
+                    <span class="legend-item">
+                        <div class="seat-demo available"></div>
+                        Available
+                    </span>
+                    <span class="legend-item">
+                        <div class="seat-demo occupied"></div>
+                        Occupied
+                    </span>
+                    <span class="legend-item">
+                        <div class="seat-demo selected"></div>
+                        Selected
+                    </span>
+                </div>
+
+                <div class="seat-map" id="seatMap">
+                    <!-- Seat grid will be dynamically generated -->
+                </div>
+
+                <div class="booking-controls">
+                    <div class="booking-row">
+                        <label for="groupSize" class="booking-label">Group Size:</label>
+                        <select id="groupSize" class="booking-input">
+                            <option value="1">1 person</option>
+                            <option value="2">2 people</option>
+                            <option value="3">3 people</option>
+                            <option value="4">4 people</option>
+                            <option value="5">5 people</option>
+                            <option value="6">6 people</option>
+                        </select>
+                    </div>
+                    <div class="booking-row">
+                        <label for="bookingTime" class="booking-label">Date & Time:</label>
+                        <input type="datetime-local" id="bookingTime" class="booking-input">
+                    </div>
+                    <div class="booking-row">
+                        <label for="bookingDuration" class="booking-label">Duration:</label>
+                        <select id="bookingDuration" class="booking-input">
+                            <option value="1">1 hour</option>
+                            <option value="2" selected>2 hours</option>
+                            <option value="3">3 hours</option>
+                            <option value="4">4 hours</option>
+                            <option value="6">6 hours</option>
+                            <option value="8">8 hours</option>
+                        </select>
+                    </div>
+                    <div class="booking-actions">
+                        <button id="confirmBooking" class="book-btn" disabled>Book Selected Seats</button>
+                        <button id="clearSelection" class="clear-btn">Clear Selection</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Summary Page -->
+        <section id="booking-summary" class="page">
+            <div class="booking-progress">
+                <div class="progress-step">
+                    <div class="step-number">1</div>
+                    <span>Select Location</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">2</div>
+                    <span>Choose Seats</span>
+                </div>
+                <div class="progress-step active">
+                    <div class="step-number">3</div>
+                    <span>Confirm Booking</span>
+                </div>
+            </div>
+
+            <div class="summary-header">
+                <button class="back-btn" id="backToSeats">← Back</button>
+                <h2>Confirm Your Booking</h2>
+            </div>
+
+            <div class="summary-container">
+                <div class="booking-summary-card">
+                    <div class="summary-top">
+                        <div class="location-info">
+                            <h3 id="summaryLocationName"></h3>
+                            <p id="summaryLocationAddress"></p>
+                        </div>
+                        <div class="booking-badge">
+                            <span id="summaryTotalSeats"></span> seats
+                        </div>
+                    </div>
+
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-icon">📅</div>
+                            <div class="summary-details">
+                                <div class="summary-label">Date & Time</div>
+                                <div class="summary-value">
+                                    <span id="summaryDate"></span><br>
+                                    <span id="summaryStartTime"></span> - <span id="summaryEndTime"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-icon">⏱️</div>
+                            <div class="summary-details">
+                                <div class="summary-label">Duration</div>
+                                <div class="summary-value" id="summaryDuration"></div>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-icon">👥</div>
+                            <div class="summary-details">
+                                <div class="summary-label">Group Size</div>
+                                <div class="summary-value" id="summaryGroupSize"></div>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-icon">🪑</div>
+                            <div class="summary-details">
+                                <div class="summary-label">Selected Seats</div>
+                                <div class="summary-value" id="summarySeatsDetails"></div>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-icon">⚡</div>
+                            <div class="summary-details">
+                                <div class="summary-label">Facilities</div>
+                                <div class="summary-value">
+                                    <div id="summaryFacilities"></div>
+                                    <div class="facility-tags" id="facilityTags"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="summary-actions">
+                        <button id="editBooking" class="edit-btn">Edit Booking</button>
+                        <button id="confirmFinalBooking" class="confirm-btn">Confirm Booking</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Bookings Page -->
+        <section id="bookings" class="page">
+            <h2>My Bookings</h2>
+            <div class="bookings-list" id="bookingsList">
+                <!-- Bookings will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Favorites Page -->
+        <section id="favorites" class="page">
+            <h2>Favorite Locations</h2>
+            <div class="favorites-list" id="favoritesList">
+                <!-- Favorites will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Booking Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Booking Confirmed!</h3>
+            <div id="bookingDetails"></div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal()">OK</button>
+                <button class="modal-btn primary" onclick="viewMyBookings()">View My Bookings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
