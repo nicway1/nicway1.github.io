@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodlands Regional Library - Seat Selection</title>
+    <link rel="stylesheet" href="seat-map.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📚 Woodlands Regional Library</h1>
+            <p class="location-subtitle">900 South Woodlands Drive, Singapore 730900</p>
+            <p>Select your preferred study seat from available areas</p>
+        </header>
+
+        <div class="legend-container">
+            <h3>Seat Status Legend</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="seat-demo available"></div>
+                    <span>Available</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-demo selected"></div>
+                    <span>Selected</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-demo occupied"></div>
+                    <span>Occupied</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="selection-info">
+            <p>Selected Seats: <span id="selectedSeatsDisplay">None</span></p>
+            <button id="clearSelection" class="btn-clear">Clear Selection</button>
+        </div>
+
+        <!-- Layout 1: S51-S74 -->
+        <div class="layout-section">
+            <h2>Level 1 - Main Study Area (Seats S51-S74)</h2>
+            <div class="seat-layout layout-1" id="layout1">
+                <!-- Row 1: S51-S56 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S51">S51</div>
+                    <div class="seat available" data-seat="S52">S52</div>
+                    <div class="seat available" data-seat="S53">S53</div>
+                    <div class="seat available" data-seat="S54">S54</div>
+                    <div class="seat available" data-seat="S55">S55</div>
+                    <div class="seat available" data-seat="S56">S56</div>
+                </div>
+
+                <!-- Row 2: S57-S62 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S57">S57</div>
+                    <div class="seat available" data-seat="S58">S58</div>
+                    <div class="seat available" data-seat="S59">S59</div>
+                    <div class="seat available" data-seat="S60">S60</div>
+                    <div class="seat available" data-seat="S61">S61</div>
+                    <div class="seat available" data-seat="S62">S62</div>
+                </div>
+
+                <!-- Row 3: S63-S68 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S63">S63</div>
+                    <div class="seat available" data-seat="S64">S64</div>
+                    <div class="seat available" data-seat="S65">S65</div>
+                    <div class="seat available" data-seat="S66">S66</div>
+                    <div class="seat available" data-seat="S67">S67</div>
+                    <div class="seat available" data-seat="S68">S68</div>
+                </div>
+
+                <!-- Row 4: S69-S74 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S69">S69</div>
+                    <div class="seat available" data-seat="S70">S70</div>
+                    <div class="seat available" data-seat="S71">S71</div>
+                    <div class="seat available" data-seat="S72">S72</div>
+                    <div class="seat available" data-seat="S73">S73</div>
+                    <div class="seat available" data-seat="S74">S74</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layout 2: S33-S43 with Sofas -->
+        <div class="layout-section">
+            <h2>Level 2 - Lounge Reading Area (Seats S33-S43)</h2>
+            <div class="seat-layout layout-2" id="layout2">
+                <div class="lounge-container">
+                    <!-- Left Section -->
+                    <div class="lounge-section">
+                        <div class="furniture-row">
+                            <div class="table table-green"></div>
+                            <div class="seat available" data-seat="S33">S33</div>
+                            <div class="seat available" data-seat="S34">S34</div>
+                            <div class="seat available" data-seat="S35">S35</div>
+                        </div>
+                        <div class="sofa-element">
+                            <div class="sofa-label">Sofa</div>
+                        </div>
+                        <div class="furniture-row">
+                            <div class="table table-green"></div>
+                            <div class="seat available" data-seat="S36">S36</div>
+                            <div class="seat available" data-seat="S37">S37</div>
+                            <div class="seat available" data-seat="S38">S38</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section -->
+                    <div class="lounge-section">
+                        <div class="furniture-row">
+                            <div class="table table-green"></div>
+                            <div class="seat available" data-seat="S39">S39</div>
+                            <div class="seat available" data-seat="S40">S40</div>
+                        </div>
+                        <div class="sofa-element">
+                            <div class="sofa-label">Sofa</div>
+                        </div>
+                        <div class="furniture-row">
+                            <div class="table table-green"></div>
+                            <div class="seat available" data-seat="S41">S41</div>
+                            <div class="seat available" data-seat="S42">S42</div>
+                            <div class="seat available" data-seat="S43">S43</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layout 3: S134-S157 with Multimedia -->
+        <div class="layout-section">
+            <h2>Level 3 - Multimedia Study Area (Seats S134-S157)</h2>
+            <div class="seat-layout layout-3" id="layout3">
+                <div class="multimedia-label">Multimedia</div>
+
+                <!-- Row 1: S134-S139 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S134">S134</div>
+                    <div class="seat available" data-seat="S135">S135</div>
+                    <div class="seat available" data-seat="S136">S136</div>
+                    <div class="seat available" data-seat="S137">S137</div>
+                    <div class="seat available" data-seat="S138">S138</div>
+                    <div class="seat available" data-seat="S139">S139</div>
+                </div>
+
+                <!-- Row 2: S140-S145 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S140">S140</div>
+                    <div class="seat available" data-seat="S141">S141</div>
+                    <div class="seat available" data-seat="S142">S142</div>
+                    <div class="seat available" data-seat="S143">S143</div>
+                    <div class="seat available" data-seat="S144">S144</div>
+                    <div class="seat available" data-seat="S145">S145</div>
+                </div>
+
+                <!-- Row 3: S146-S151 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S146">S146</div>
+                    <div class="seat available" data-seat="S147">S147</div>
+                    <div class="seat available" data-seat="S148">S148</div>
+                    <div class="seat available" data-seat="S149">S149</div>
+                    <div class="seat available" data-seat="S150">S150</div>
+                    <div class="seat available" data-seat="S151">S151</div>
+                </div>
+
+                <!-- Row 4: S152-S157 -->
+                <div class="furniture-row">
+                    <div class="table table-green"></div>
+                    <div class="seat available" data-seat="S152">S152</div>
+                    <div class="seat available" data-seat="S153">S153</div>
+                    <div class="seat available" data-seat="S154">S154</div>
+                    <div class="seat available" data-seat="S155">S155</div>
+                    <div class="seat available" data-seat="S156">S156</div>
+                    <div class="seat available" data-seat="S157">S157</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-container">
+            <button id="confirmBooking" class="btn-confirm" disabled>Confirm Booking</button>
+        </div>
+    </div>
+
+    <script src="seat-map.js"></script>
+</body>
+</html>

@@ -9,7 +9,8 @@ const THEME_STORAGE_KEY = 'studyspace-theme';
 let searchFilters = {
     date: null,
     time: null,
-    duration: 2
+    duration: 2,
+    pax: 1
 };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -20,12 +21,61 @@ function initializeApp() {
     setupThemeToggle();
     setupNavigation();
     loadUserData();
+    populateTimeIntervals();
+    setupAdvancedSearchToggle();
     setupSearch();
     setupFilters();
     displayLocations();
     setupModal();
 
     setInterval(simulateRealTimeUpdates, 30000);
+}
+
+function populateTimeIntervals() {
+    const searchTimeSelect = document.getElementById('searchTime');
+    if (!searchTimeSelect) return;
+
+    // Generate time options in 30-minute intervals
+    const timeOptions = [];
+    for (let hour = 0; hour < 24; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+            const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            timeOptions.push(timeString);
+        }
+    }
+
+    // Populate the select element
+    searchTimeSelect.innerHTML = timeOptions.map(time =>
+        `<option value="${time}">${time}</option>`
+    ).join('');
+
+    // Set default to current time rounded to nearest 30-minute interval
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const roundedMinute = currentMinute < 30 ? '00' : '30';
+    const defaultTime = `${String(currentHour).padStart(2, '0')}:${roundedMinute}`;
+    searchTimeSelect.value = defaultTime;
+}
+
+function setupAdvancedSearchToggle() {
+    const toggleBtn = document.getElementById('advancedSearchToggle');
+    const content = document.getElementById('advancedSearchContent');
+    const arrow = toggleBtn.querySelector('.toggle-arrow');
+
+    if (!toggleBtn || !content) return;
+
+    toggleBtn.addEventListener('click', () => {
+        const isVisible = content.style.display !== 'none';
+
+        if (isVisible) {
+            content.style.display = 'none';
+            arrow.textContent = '▼';
+        } else {
+            content.style.display = 'block';
+            arrow.textContent = '▲';
+        }
+    });
 }
 
 function setupThemeToggle() {
@@ -146,12 +196,12 @@ function setupSearch() {
     const searchDate = document.getElementById('searchDate');
     const searchTime = document.getElementById('searchTime');
     const searchDuration = document.getElementById('searchDuration');
+    const searchPax = document.getElementById('searchPax');
     const searchBtn = document.querySelector('.search-btn');
 
     // Set default values
     const now = new Date();
     searchDate.value = now.toISOString().split('T')[0];
-    searchTime.value = now.toTimeString().slice(0, 5);
 
     // Set min date to today
     searchDate.min = now.toISOString().split('T')[0];
@@ -166,6 +216,15 @@ function setupSearch() {
         const selectedDate = searchDate.value;
         const selectedTime = searchTime.value;
         const duration = parseInt(searchDuration.value);
+        const pax = parseInt(searchPax.value);
+
+        // Store search filters for later use
+        searchFilters = {
+            date: selectedDate,
+            time: selectedTime,
+            duration: duration,
+            pax: pax
+        };
 
         let filteredLocations = studyLocations.filter(location =>
             location.name.toLowerCase().includes(query) ||
@@ -194,6 +253,7 @@ function setupSearch() {
     searchDate.addEventListener('change', performSearch);
     searchTime.addEventListener('change', performSearch);
     searchDuration.addEventListener('change', performSearch);
+    searchPax.addEventListener('change', performSearch);
 
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -571,7 +631,8 @@ function getFacilityIcon(facility) {
         group: '👥',
         window: '🪟',
         corner: '🏠',
-        wheelchair: '♿'
+        wheelchair: '♿',
+        accessible: '♿'
     };
     return icons[facility] || '✓';
 }
@@ -608,7 +669,32 @@ function viewLocationDetails(location) {
     }
 
     setupBookingControls();
+    preFillBookingControls();
     navigateToPage('location-details');
+}
+
+function preFillBookingControls() {
+    // Pre-fill group size from search
+    const groupSizeSelect = document.getElementById('groupSize');
+    if (groupSizeSelect && searchFilters.pax) {
+        groupSizeSelect.value = searchFilters.pax;
+    }
+
+    // Pre-fill date & time from search
+    const bookingTimeInput = document.getElementById('bookingTime');
+    if (bookingTimeInput && searchFilters.date && searchFilters.time) {
+        const dateTimeValue = `${searchFilters.date}T${searchFilters.time}`;
+        bookingTimeInput.value = dateTimeValue;
+    }
+
+    // Pre-fill duration from search
+    const bookingDurationSelect = document.getElementById('bookingDuration');
+    if (bookingDurationSelect && searchFilters.duration) {
+        bookingDurationSelect.value = searchFilters.duration;
+    }
+
+    // Update the booking button
+    updateBookingButton();
 }
 
 function createFloorSelector(location) {
@@ -616,22 +702,24 @@ function createFloorSelector(location) {
 
     // Create floor selector UI
     const floorSelector = `
-        <div class="floor-selector">
-            <h3>Select Floor</h3>
-            <div class="floor-buttons">
-                ${location.floors.map((floor, index) => `
-                    <button class="floor-btn ${index === 0 ? 'active' : ''}" data-floor-index="${index}">
-                        <div class="floor-info">
-                            <span class="floor-name">${floor.floorName}</span>
-                            <span class="floor-description">${floor.description}</span>
-                            <span class="floor-availability">${floor.availableSeats}/${floor.totalSeats} available</span>
-                        </div>
-                    </button>
-                `).join('')}
+        <div class="floor-layout-container">
+            <div class="floor-selector">
+                <h3>Select Floor</h3>
+                <div class="floor-buttons">
+                    ${location.floors.map((floor, index) => `
+                        <button class="floor-btn ${index === 0 ? 'active' : ''}" data-floor-index="${index}">
+                            <div class="floor-info">
+                                <span class="floor-name">${floor.floorName}</span>
+                                <span class="floor-description">${floor.description}</span>
+                                <span class="floor-availability">${floor.availableSeats}/${floor.totalSeats} available</span>
+                            </div>
+                        </button>
+                    `).join('')}
+                </div>
             </div>
-        </div>
-        <div id="floorSeatMap" class="seat-map-container">
-            <!-- Floor seat map will be inserted here -->
+            <div id="floorSeatMap" class="floor-seat-map-wrapper">
+                <!-- Floor seat map will be inserted here -->
+            </div>
         </div>
     `;
 
@@ -666,6 +754,23 @@ function selectFloor(location, floorIndex) {
 function generateFloorSeatMap(floor) {
     const floorSeatMapContainer = document.getElementById('floorSeatMap');
 
+    let seatMapHTML = '';
+
+    // Determine layout type and generate appropriate HTML
+    if (floor.layoutType === 'grid') {
+        // Layout 1: Grid layout with 4 rows of 6 seats
+        seatMapHTML = generateGridLayout(floor.seats);
+    } else if (floor.layoutType === 'lounge') {
+        // Layout 2: Lounge layout with sofas
+        seatMapHTML = generateLoungeLayout(floor.seats);
+    } else if (floor.layoutType === 'multimedia') {
+        // Layout 3: Multimedia layout
+        seatMapHTML = generateMultimediaLayout(floor.seats);
+    } else {
+        // Default grid layout
+        seatMapHTML = generateDefaultSeatMap(floor.seats);
+    }
+
     const floorMapHTML = `
         <div class="floor-header">
             <h4>${floor.floorName}</h4>
@@ -674,46 +779,128 @@ function generateFloorSeatMap(floor) {
                 <img src="${floor.image}" alt="${floor.floorName}" style="width: 100%; max-width: 400px; height: 200px; object-fit: cover; border-radius: 8px;">
             </div>
         </div>
-        <div class="seat-map" id="actualSeatMap">
-            ${floor.seats.map(seat => {
-                let seatClass = seat.status === 'available' ? 'available' : 'occupied';
-
-                // Check for premium seats (seats with both power and corner position)
-                if (seat.type === 'power' && seat.position === 'corner') {
-                    seatClass += ' premium';
-                }
-
-                // Add selected class if this seat is in selectedSeats array
-                if (selectedSeats.includes(seat.id)) {
-                    seatClass += ' selected';
-                }
-
-                const icons = getSeatIcons(seat);
-
-                return `
-                    <div class="seat ${seatClass}" data-seat-id="${seat.id}" ${seat.status === 'available' ? '' : 'style="cursor: not-allowed;"'}>
-                        <span class="seat-number">${seat.id}</span>
-                        <div class="seat-icons">${icons}</div>
-                    </div>
-                `;
-            }).join('')}
-        </div>
+        ${seatMapHTML}
     `;
 
     floorSeatMapContainer.innerHTML = floorMapHTML;
 
     // Add click listeners to seats
     floorSeatMapContainer.querySelectorAll('.seat').forEach(seatElement => {
-        const seatId = parseInt(seatElement.dataset.seatId);
+        const seatId = seatElement.dataset.seatId;
         const seat = floor.seats.find(s => s.id === seatId);
 
         // Only add click listener if seat is available or already selected
-        if (seat.status === 'available' || selectedSeats.includes(seatId)) {
+        if (seat && (seat.status === 'available' || selectedSeats.includes(seatId))) {
             seatElement.addEventListener('click', () => {
                 selectSeat(seatId);
             });
         }
     });
+}
+
+function generateGridLayout(seats) {
+    // S51-S74: 4 rows of 6 seats with tables
+    const rows = [
+        seats.slice(0, 6),   // S51-S56
+        seats.slice(6, 12),  // S57-S62
+        seats.slice(12, 18), // S63-S68
+        seats.slice(18, 24)  // S69-S74
+    ];
+
+    return `
+        <div class="seat-map layout-grid" id="actualSeatMap">
+            ${rows.map(row => `
+                <div class="furniture-row">
+                    <div class="table"></div>
+                    ${row.map(seat => generateSeatHTML(seat)).join('')}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function generateLoungeLayout(seats) {
+    // S33-S43: Two lounge sections with sofas
+    return `
+        <div class="seat-map layout-lounge" id="actualSeatMap">
+            <div class="lounge-container">
+                <div class="lounge-section">
+                    <div class="furniture-row">
+                        <div class="table"></div>
+                        ${seats.slice(0, 3).map(seat => generateSeatHTML(seat)).join('')}
+                    </div>
+                    <div class="sofa-element">
+                        <div class="sofa-label">Sofa</div>
+                    </div>
+                    <div class="furniture-row">
+                        <div class="table"></div>
+                        ${seats.slice(3, 6).map(seat => generateSeatHTML(seat)).join('')}
+                    </div>
+                </div>
+                <div class="lounge-section">
+                    <div class="furniture-row">
+                        <div class="table"></div>
+                        ${seats.slice(6, 8).map(seat => generateSeatHTML(seat)).join('')}
+                    </div>
+                    <div class="sofa-element">
+                        <div class="sofa-label">Sofa</div>
+                    </div>
+                    <div class="furniture-row">
+                        <div class="table"></div>
+                        ${seats.slice(8, 11).map(seat => generateSeatHTML(seat)).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generateMultimediaLayout(seats) {
+    // S134-S157: 4 rows of 6 seats with multimedia label
+    const rows = [
+        seats.slice(0, 6),   // S134-S139
+        seats.slice(6, 12),  // S140-S145
+        seats.slice(12, 18), // S146-S151
+        seats.slice(18, 24)  // S152-S157
+    ];
+
+    return `
+        <div class="seat-map layout-multimedia" id="actualSeatMap">
+            <div class="multimedia-label">Multimedia</div>
+            ${rows.map(row => `
+                <div class="furniture-row">
+                    <div class="table"></div>
+                    ${row.map(seat => generateSeatHTML(seat)).join('')}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function generateSeatHTML(seat) {
+    let seatClass = seat.status === 'available' ? 'available' : 'occupied';
+
+    // Add selected class if this seat is in selectedSeats array
+    if (selectedSeats.includes(seat.id)) {
+        seatClass += ' selected';
+    }
+
+    const icons = getSeatIcons(seat);
+
+    return `
+        <div class="seat ${seatClass}" data-seat-id="${seat.id}" ${seat.status === 'available' ? '' : 'style="cursor: not-allowed;"'}>
+            <span class="seat-number">${seat.id}</span>
+            <div class="seat-icons">${icons}</div>
+        </div>
+    `;
+}
+
+function generateDefaultSeatMap(seats) {
+    return `
+        <div class="seat-map" id="actualSeatMap">
+            ${seats.map(seat => generateSeatHTML(seat)).join('')}
+        </div>
+    `;
 }
 
 function generateSeatMap(location) {

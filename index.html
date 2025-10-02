@@ -33,7 +33,9 @@
                 <div class="search-container">
                     <input type="text" id="searchInput" placeholder="Search locations..." class="search-input">
                     <input type="date" id="searchDate" class="search-date">
-                    <input type="time" id="searchTime" class="search-time">
+                    <select id="searchTime" class="search-time">
+                        <!-- Time options will be populated by JavaScript -->
+                    </select>
                     <select id="searchDuration" class="search-duration">
                         <option value="1">1 hour</option>
                         <option value="2" selected>2 hours</option>
@@ -42,70 +44,87 @@
                         <option value="6">6 hours</option>
                         <option value="8">8 hours</option>
                     </select>
+                    <select id="searchPax" class="search-pax">
+                        <option value="1">1 person</option>
+                        <option value="2">2 people</option>
+                        <option value="3">3 people</option>
+                        <option value="4">4 people</option>
+                        <option value="5">5 people</option>
+                        <option value="6">6 people</option>
+                    </select>
                     <button class="search-btn">🔍</button>
                 </div>
 
-                <div class="type-filter-section">
-                    <h3>Study Space Types</h3>
-                    <div class="type-filter-bar">
-                        <button class="type-filter-btn active" data-type="all">
-                            <span class="icon">🏛️</span>
-                            <span class="label">All Locations</span>
-                            <span class="count" id="allCount">27</span>
-                        </button>
-                        <button class="type-filter-btn" data-type="library">
-                            <span class="icon">📚</span>
-                            <span class="label">Libraries</span>
-                            <span class="count" id="libraryCount">19</span>
-                        </button>
-                        <button class="type-filter-btn" data-type="university">
-                            <span class="icon">🎓</span>
-                            <span class="label">Universities</span>
-                            <span class="count" id="universityCount">7</span>
-                        </button>
-                        <button class="type-filter-btn" data-type="community">
-                            <span class="icon">🏢</span>
-                            <span class="label">Community Centers</span>
-                            <span class="count" id="communityCount">8</span>
-                        </button>
-                    </div>
-                </div>
+                <div class="advanced-search-section">
+                    <button class="advanced-search-toggle" id="advancedSearchToggle">
+                        <span>Advanced Search</span>
+                        <span class="toggle-arrow">▼</span>
+                    </button>
 
-                <div class="filter-section">
-                    <div class="filter-group">
-                        <h4>By Facilities</h4>
-                        <div class="filter-bar">
-                            <button class="filter-btn" data-filter="all">All</button>
-                            <button class="filter-btn" data-filter="power">🔌 Power</button>
-                            <button class="filter-btn" data-filter="window">🪟 Window</button>
-                            <button class="filter-btn" data-filter="corner">🏠 Corner</button>
-                            <button class="filter-btn" data-filter="quiet">🤫 Quiet</button>
-                            <button class="filter-btn" data-filter="wheelchair">♿ Accessible</button>
+                    <div class="advanced-search-content" id="advancedSearchContent" style="display: none;">
+                        <div class="type-filter-section">
+                            <h3>Study Space Types</h3>
+                            <div class="type-filter-bar">
+                                <button class="type-filter-btn active" data-type="all">
+                                    <span class="icon">🏛️</span>
+                                    <span class="label">All Locations</span>
+                                    <span class="count" id="allCount">27</span>
+                                </button>
+                                <button class="type-filter-btn" data-type="library">
+                                    <span class="icon">📚</span>
+                                    <span class="label">Libraries</span>
+                                    <span class="count" id="libraryCount">19</span>
+                                </button>
+                                <button class="type-filter-btn" data-type="university">
+                                    <span class="icon">🎓</span>
+                                    <span class="label">Universities</span>
+                                    <span class="count" id="universityCount">7</span>
+                                </button>
+                                <button class="type-filter-btn" data-type="community">
+                                    <span class="icon">🏢</span>
+                                    <span class="label">Community Centers</span>
+                                    <span class="count" id="communityCount">8</span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="filter-group">
-                        <h4>By Region</h4>
-                        <div class="region-filter-bar">
-                            <button class="region-filter-btn active" data-region="all">🌐 All Regions</button>
-                            <button class="region-filter-btn" data-region="Central">🏙️ Central</button>
-                            <button class="region-filter-btn" data-region="North">⬆️ North</button>
-                            <button class="region-filter-btn" data-region="East">➡️ East</button>
-                            <button class="region-filter-btn" data-region="West">⬅️ West</button>
-                            <button class="region-filter-btn" data-region="North-East">↗️ North-East</button>
-                        </div>
-                    </div>
+                        <div class="filter-section">
+                            <div class="filter-group">
+                                <h4>Required Facilities</h4>
+                                <div class="filter-bar">
+                                    <button class="filter-btn" data-filter="all">All</button>
+                                    <button class="filter-btn" data-filter="power">🔌 Power</button>
+                                    <button class="filter-btn" data-filter="window">🪟 Window</button>
+                                    <button class="filter-btn" data-filter="wifi">📶 Wifi</button>
+                                    <button class="filter-btn" data-filter="quiet">🤫 Quiet</button>
+                                    <button class="filter-btn" data-filter="wheelchair">♿ Accessible</button>
+                                </div>
+                            </div>
 
-                    <div class="filter-group">
-                        <h4>Sort & Location</h4>
-                        <div class="sort-location-bar">
-                            <select id="sortSelect" class="sort-select">
-                                <option value="default">Sort by Relevance</option>
-                                <option value="alphabetical">Sort A-Z</option>
-                                <option value="distance">Sort by Distance</option>
-                                <option value="availability">Sort by Availability</option>
-                            </select>
-                            <button id="findNearbyBtn" class="find-nearby-btn">📍 Find Nearby</button>
+                            <div class="filter-group">
+                                <h4>Region</h4>
+                                <div class="region-filter-bar">
+                                    <button class="region-filter-btn active" data-region="all">🌐 All Regions</button>
+                                    <button class="region-filter-btn" data-region="Central">🏙️ Central</button>
+                                    <button class="region-filter-btn" data-region="North">⬆️ North</button>
+                                    <button class="region-filter-btn" data-region="East">➡️ East</button>
+                                    <button class="region-filter-btn" data-region="West">⬅️ West</button>
+                                    <button class="region-filter-btn" data-region="North-East">↗️ North-East</button>
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <h4>Sort & Location</h4>
+                                <div class="sort-location-bar">
+                                    <select id="sortSelect" class="sort-select">
+                                        <option value="default">Sort by Relevance</option>
+                                        <option value="alphabetical">Sort A-Z</option>
+                                        <option value="distance">Sort by Distance</option>
+                                        <option value="availability">Sort by Availability</option>
+                                    </select>
+                                    <button id="findNearbyBtn" class="find-nearby-btn">📍 Find Nearby</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,22 +158,28 @@
             <div class="seat-selection">
                 <h3>Select Your Seat</h3>
                 <div class="seat-legend">
-                    <span class="legend-item">
-                        <div class="seat-demo available"></div>
-                        Available
-                    </span>
-                    <span class="legend-item">
-                        <div class="seat-demo occupied"></div>
-                        Occupied
-                    </span>
-                    <span class="legend-item">
-                        <div class="seat-demo selected"></div>
-                        Selected
-                    </span>
-                    <span class="legend-item">
-                        <div class="seat-demo premium"></div>
-                        Premium
-                    </span>
+                    <div class="seat-status-legend">
+                        <span class="legend-item">
+                            <div class="seat-demo available"></div>
+                            Available
+                        </span>
+                        <span class="legend-item">
+                            <div class="seat-demo occupied"></div>
+                            Occupied
+                        </span>
+                        <span class="legend-item">
+                            <div class="seat-demo selected"></div>
+                            Selected
+                        </span>
+                    </div>
+                    <div class="seat-features-legend">
+                        <h4>Seat Features:</h4>
+                        <span class="feature-item">🔌 Power</span>
+                        <span class="feature-item">🪟 Window</span>
+                        <span class="feature-item">🏠 Corner</span>
+                        <span class="feature-item">🤫 Quiet</span>
+                        <span class="feature-item">♿ Accessible</span>
+                    </div>
                 </div>
 
                 <div class="seat-map" id="seatMap">
