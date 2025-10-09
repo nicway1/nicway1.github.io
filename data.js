@@ -1194,25 +1194,3 @@ const studyLocations = [
         ]
     }
 ];
-
-let bookings = [];
-let favorites = [];
-
-function loadBookings() {
-    const saved = localStorage.getItem('studyspace-bookings');
-    return saved ? JSON.parse(saved) : [];
-}
-
-function saveBookings(bookings) {
-    localStorage.setItem('studyspace-bookings', JSON.stringify(bookings));
-}
-
-function loadFavorites() {
-    const saved = localStorage.getItem('studyspace-favorites');
-    return saved ? JSON.parse(saved) : [];
-}
-
-function saveFavorites(favorites) {
-    localStorage.setItem('studyspace-favorites', JSON.stringify(favorites));
-}
-

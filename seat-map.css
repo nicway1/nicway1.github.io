@@ -31,6 +31,10 @@ body {
     margin-bottom: 10px;
 }
 
+.emoji-large {
+    font-size: 1.5em;
+}
+
 .header p {
     color: #666;
     font-size: 1.1em;
@@ -41,6 +45,46 @@ body {
     font-size: 1em;
     margin-bottom: 5px;
     font-style: italic;
+}
+
+/* Floor Tabs Styles */
+.floor-tabs-container {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.floor-tabs {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.floor-tab {
+    padding: 12px 30px;
+    background: white;
+    color: #333;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.floor-tab:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateY(-2px);
+}
+
+.floor-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* Legend Styles */
@@ -147,27 +191,35 @@ body {
 /* Seat Layout Common Styles */
 .seat-layout {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
+    flex-direction: row;
+    gap: 30px;
     padding: 30px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Furniture Row */
-.furniture-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
     justify-content: center;
     flex-wrap: wrap;
 }
 
+/* Table Group - chairs around table */
+.table-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Seats Row */
+.seats-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
 /* Table (Green Rectangle) */
 .table {
-    width: 100px;
-    height: 50px;
+    width: 180px;
+    height: 60px;
     border-radius: 8px;
     flex-shrink: 0;
 }
@@ -194,35 +246,35 @@ body {
     position: relative;
 }
 
-/* Available Seat - Blue */
+/* Available Seat - Orange */
 .seat.available {
-    background: #2196f3;
+    background: #ff9800;
     color: white;
-    border-color: #1976d2;
+    border-color: #f57c00;
 }
 
 .seat.available:hover {
-    background: #1e88e5;
+    background: #fb8c00;
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
 }
 
-/* Selected Seat - Bright Yellow/Green */
+/* Selected Seat - Blue */
 .seat.selected {
-    background: #ffeb3b;
-    color: #333;
-    border-color: #fbc02d;
+    background: #2196f3;
+    color: white;
+    border-color: #1976d2;
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(255, 235, 59, 0.5);
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5);
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
     0%, 100% {
-        box-shadow: 0 8px 25px rgba(255, 235, 59, 0.5);
+        box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5);
     }
     50% {
-        box-shadow: 0 8px 35px rgba(255, 235, 59, 0.7);
+        box-shadow: 0 8px 35px rgba(33, 150, 243, 0.7);
     }
 }
 

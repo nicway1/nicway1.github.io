@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <div id="output"></div>
+    
+    <script src="data.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        output.innerHTML = '<p>Data.js loaded: ' + (typeof studyLocations !== 'undefined') + '</p>';
+        if (typeof studyLocations !== 'undefined') {
+            output.innerHTML += '<p>Number of locations: ' + studyLocations.length + '</p>';
+        }
+    </script>
+</body>
+</html>

@@ -1,3 +1,5 @@
+console.log('Script.js loading...');
+
 let currentLocation = null;
 let currentFloor = null;
 let selectedSeats = [];
@@ -13,22 +15,100 @@ let searchFilters = {
     pax: 1
 };
 
+// Bookings array - load from localStorage or initialize empty
+let bookings = [];
+let favorites = [];
+
+console.log('Variables initialized');
+
+// Load bookings from localStorage
+function loadBookings() {
+    const stored = localStorage.getItem('studyspace-bookings');
+    if (stored) {
+        try {
+            bookings = JSON.parse(stored);
+        } catch (e) {
+            console.error('Error loading bookings:', e);
+            bookings = [];
+        }
+    }
+    return bookings;
+}
+
+// Save bookings to localStorage
+function saveBookings(bookingsToSave) {
+    try {
+        localStorage.setItem('studyspace-bookings', JSON.stringify(bookingsToSave));
+        console.log('Bookings saved successfully:', bookingsToSave.length, 'bookings');
+    } catch (e) {
+        console.error('Error saving bookings:', e);
+    }
+}
+
+// Load favorites from localStorage
+function loadFavorites() {
+    const stored = localStorage.getItem('studyspace-favorites');
+    if (stored) {
+        try {
+            favorites = JSON.parse(stored);
+        } catch (e) {
+            console.error('Error loading favorites:', e);
+            favorites = [];
+        }
+    }
+    return favorites;
+}
+
+// Save favorites to localStorage
+function saveFavorites(favoritesToSave) {
+    try {
+        localStorage.setItem('studyspace-favorites', JSON.stringify(favoritesToSave));
+    } catch (e) {
+        console.error('Error saving favorites:', e);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
 function initializeApp() {
-    setupThemeToggle();
-    setupNavigation();
-    loadUserData();
-    populateTimeIntervals();
-    setupAdvancedSearchToggle();
-    setupSearch();
-    setupFilters();
-    displayLocations();
-    setupModal();
+    console.log('initializeApp starting...');
+    console.log('studyLocations available:', typeof studyLocations !== 'undefined');
 
-    setInterval(simulateRealTimeUpdates, 30000);
+    try {
+        setupThemeToggle();
+        console.log('Theme toggle setup complete');
+
+        setupNavigation();
+        console.log('Navigation setup complete');
+
+        loadUserData(); // This will load bookings and favorites
+        console.log('User data loaded');
+
+        populateTimeIntervals();
+        console.log('Time intervals populated');
+
+        setupAdvancedSearchToggle();
+        console.log('Advanced search setup complete');
+
+        setupSearch();
+        console.log('Search setup complete');
+
+        setupFilters();
+        console.log('Filters setup complete');
+
+        displayLocations();
+        console.log('Locations displayed');
+
+        setupModal();
+        console.log('Modal setup complete');
+
+        setInterval(simulateRealTimeUpdates, 30000);
+        console.log('initializeApp complete!');
+    } catch(error) {
+        console.error('Error in initializeApp:', error);
+    }
 }
 
 function populateTimeIntervals() {
@@ -646,8 +726,16 @@ function viewLocationDetails(location) {
     document.getElementById('locationName').textContent = location.name;
     document.getElementById('locationAddress').textContent = location.address;
 
+    // Get the static legend element
+    const staticLegend = document.querySelector('.seat-selection .seat-legend');
+
     // Handle multi-floor libraries
     if (location.hasFloors && location.floors) {
+        // Hide static legend for multi-floor libraries
+        if (staticLegend) {
+            staticLegend.style.display = 'none';
+        }
+
         // Show total stats across all floors
         document.getElementById('availableSeats').textContent = `${location.availableSeats}/${location.totalSeats}`;
         document.getElementById('crowdLevel').textContent = location.crowdLevel;
@@ -660,6 +748,11 @@ function viewLocationDetails(location) {
         currentFloor = location.floors[0];
         generateFloorSeatMap(currentFloor);
     } else {
+        // Show static legend for single-floor locations
+        if (staticLegend) {
+            staticLegend.style.display = '';
+        }
+
         // Regular single-floor location
         document.getElementById('availableSeats').textContent = `${location.availableSeats}/${location.totalSeats}`;
         document.getElementById('crowdLevel').textContent = location.crowdLevel;
@@ -716,6 +809,30 @@ function createFloorSelector(location) {
                         </button>
                     `).join('')}
                 </div>
+                <div class="seat-legend" style="margin-top: 20px;">
+                    <div class="seat-status-legend">
+                        <span class="legend-item">
+                            <div class="seat-demo available"></div>
+                            Available
+                        </span>
+                        <span class="legend-item">
+                            <div class="seat-demo occupied"></div>
+                            Occupied
+                        </span>
+                        <span class="legend-item">
+                            <div class="seat-demo selected"></div>
+                            Selected
+                        </span>
+                    </div>
+                    <div class="seat-features-legend" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                        <h4 style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-color);">Seat Features:</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <span class="feature-item" style="font-size: 0.85rem;">🔌 Power outlet</span>
+                            <span class="feature-item" style="font-size: 0.85rem;">🪟 Window seat</span>
+                            <span class="feature-item" style="font-size: 0.85rem;">🏠 Corner seat</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="floorSeatMap" class="floor-seat-map-wrapper">
                 <!-- Floor seat map will be inserted here -->
@@ -771,18 +888,7 @@ function generateFloorSeatMap(floor) {
         seatMapHTML = generateDefaultSeatMap(floor.seats);
     }
 
-    const floorMapHTML = `
-        <div class="floor-header">
-            <h4>${floor.floorName}</h4>
-            <p>${floor.description}</p>
-            <div class="floor-image">
-                <img src="${floor.image}" alt="${floor.floorName}" style="width: 100%; max-width: 400px; height: 200px; object-fit: cover; border-radius: 8px;">
-            </div>
-        </div>
-        ${seatMapHTML}
-    `;
-
-    floorSeatMapContainer.innerHTML = floorMapHTML;
+    floorSeatMapContainer.innerHTML = seatMapHTML;
 
     // Add click listeners to seats
     floorSeatMapContainer.querySelectorAll('.seat').forEach(seatElement => {
@@ -799,20 +905,26 @@ function generateFloorSeatMap(floor) {
 }
 
 function generateGridLayout(seats) {
-    // S51-S74: 4 rows of 6 seats with tables
-    const rows = [
-        seats.slice(0, 6),   // S51-S56
-        seats.slice(6, 12),  // S57-S62
-        seats.slice(12, 18), // S63-S68
-        seats.slice(18, 24)  // S69-S74
+    // S51-S74: 4 tables with 6 seats each (3 on top, 3 on bottom)
+    const tables = [
+        { label: 'Table 1', seats: seats.slice(0, 6) },   // S51-S56
+        { label: 'Table 2', seats: seats.slice(6, 12) },  // S57-S62
+        { label: 'Table 3', seats: seats.slice(12, 18) }, // S63-S68
+        { label: 'Table 4', seats: seats.slice(18, 24) }  // S69-S74
     ];
 
     return `
         <div class="seat-map layout-grid" id="actualSeatMap">
-            ${rows.map(row => `
-                <div class="furniture-row">
+            ${tables.map(table => `
+                <div class="table-group">
+                    <div class="table-label">${table.label}</div>
+                    <div class="seats-row top">
+                        ${table.seats.slice(0, 3).map(seat => generateSeatHTML(seat)).join('')}
+                    </div>
                     <div class="table"></div>
-                    ${row.map(seat => generateSeatHTML(seat)).join('')}
+                    <div class="seats-row bottom">
+                        ${table.seats.slice(3, 6).map(seat => generateSeatHTML(seat)).join('')}
+                    </div>
                 </div>
             `).join('')}
         </div>
@@ -820,34 +932,58 @@ function generateGridLayout(seats) {
 }
 
 function generateLoungeLayout(seats) {
-    // S33-S43: Two lounge sections with sofas
+    // S33-S43: Two lounge sections with sofas and properly arranged tables
     return `
         <div class="seat-map layout-lounge" id="actualSeatMap">
             <div class="lounge-container">
                 <div class="lounge-section">
-                    <div class="furniture-row">
+                    <div class="table-group">
+                        <div class="table-label">Table 1</div>
+                        <div class="seats-row top">
+                            ${seats.slice(0, 2).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                         <div class="table"></div>
-                        ${seats.slice(0, 3).map(seat => generateSeatHTML(seat)).join('')}
+                        <div class="seats-row bottom">
+                            ${seats.slice(2, 3).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                     </div>
                     <div class="sofa-element">
                         <div class="sofa-label">Sofa</div>
                     </div>
-                    <div class="furniture-row">
+                    <div class="table-group">
+                        <div class="table-label">Table 2</div>
+                        <div class="seats-row top">
+                            ${seats.slice(3, 5).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                         <div class="table"></div>
-                        ${seats.slice(3, 6).map(seat => generateSeatHTML(seat)).join('')}
+                        <div class="seats-row bottom">
+                            ${seats.slice(5, 6).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                     </div>
                 </div>
                 <div class="lounge-section">
-                    <div class="furniture-row">
+                    <div class="table-group">
+                        <div class="table-label">Table 3</div>
+                        <div class="seats-row top">
+                            ${seats.slice(6, 7).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                         <div class="table"></div>
-                        ${seats.slice(6, 8).map(seat => generateSeatHTML(seat)).join('')}
+                        <div class="seats-row bottom">
+                            ${seats.slice(7, 8).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                     </div>
                     <div class="sofa-element">
                         <div class="sofa-label">Sofa</div>
                     </div>
-                    <div class="furniture-row">
+                    <div class="table-group">
+                        <div class="table-label">Table 4</div>
+                        <div class="seats-row top">
+                            ${seats.slice(8, 10).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                         <div class="table"></div>
-                        ${seats.slice(8, 11).map(seat => generateSeatHTML(seat)).join('')}
+                        <div class="seats-row bottom">
+                            ${seats.slice(10, 11).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -856,23 +992,31 @@ function generateLoungeLayout(seats) {
 }
 
 function generateMultimediaLayout(seats) {
-    // S134-S157: 4 rows of 6 seats with multimedia label
-    const rows = [
-        seats.slice(0, 6),   // S134-S139
-        seats.slice(6, 12),  // S140-S145
-        seats.slice(12, 18), // S146-S151
-        seats.slice(18, 24)  // S152-S157
+    // S134-S157: 4 tables with 6 seats each (3 on top, 3 on bottom)
+    const tables = [
+        { label: 'Table 1', seats: seats.slice(0, 6) },   // S134-S139
+        { label: 'Table 2', seats: seats.slice(6, 12) },  // S140-S145
+        { label: 'Table 3', seats: seats.slice(12, 18) }, // S146-S151
+        { label: 'Table 4', seats: seats.slice(18, 24) }  // S152-S157
     ];
 
     return `
         <div class="seat-map layout-multimedia" id="actualSeatMap">
             <div class="multimedia-label">Multimedia</div>
-            ${rows.map(row => `
-                <div class="furniture-row">
-                    <div class="table"></div>
-                    ${row.map(seat => generateSeatHTML(seat)).join('')}
-                </div>
-            `).join('')}
+            <div class="table-groups-container">
+                ${tables.map(table => `
+                    <div class="table-group">
+                        <div class="table-label">${table.label}</div>
+                        <div class="seats-row top">
+                            ${table.seats.slice(0, 3).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
+                        <div class="table"></div>
+                        <div class="seats-row bottom">
+                            ${table.seats.slice(3, 6).map(seat => generateSeatHTML(seat)).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
         </div>
     `;
 }
@@ -1262,10 +1406,22 @@ function confirmFinalBooking() {
 
     console.log('Created bookings:', groupBookings);
     console.log('Total bookings array:', bookings);
+    console.log('Bookings array length before save:', bookings.length);
 
     saveBookings(bookings);
+
+    console.log('After save - checking localStorage...');
+    const savedCheck = localStorage.getItem('studyspace-bookings');
+    console.log('localStorage raw value:', savedCheck);
+
     showGroupBookingConfirmation(groupBookings);
-    generateSeatMap(currentLocation);
+
+    // Refresh the seat map based on whether it's multi-floor or single-floor
+    if (currentFloor) {
+        generateFloorSeatMap(currentFloor);
+    } else {
+        generateSeatMap(currentLocation);
+    }
 
     selectedSeats = [];
     updateBookingButton();
@@ -1359,18 +1515,21 @@ function displayBookings() {
     const now = new Date();
     console.log('displayBookings called');
     console.log('Current bookings array:', bookings);
+    console.log('Bookings length:', bookings.length);
     console.log('Current time:', now);
 
     // Debug each booking's date
     if (bookings && bookings.length > 0) {
         bookings.forEach((booking, index) => {
             const bookingDate = new Date(booking.dateTime);
-            console.log(`Booking ${index}: dateTime = ${booking.dateTime}, parsed = ${bookingDate}, is future? ${bookingDate > now}`);
+            console.log(`Booking ${index}:`, booking);
+            console.log(`  dateTime = ${booking.dateTime}, parsed = ${bookingDate}, is future? ${bookingDate > now}`);
         });
     }
 
-    const activeBookings = bookings ? bookings.filter(booking => new Date(booking.dateTime) > now) : [];
-    console.log('Active bookings (future):', activeBookings);
+    // Show ALL bookings for now (remove future filter temporarily for debugging)
+    const activeBookings = bookings || [];
+    console.log('Active bookings:', activeBookings);
 
     if (activeBookings.length === 0) {
         container.innerHTML = `
@@ -1484,10 +1643,24 @@ function cancelBooking(bookingId) {
     const location = studyLocations.find(l => l.id === booking.locationId);
 
     if (location) {
-        const seat = location.seats.find(s => s.id === booking.seatId);
-        if (seat) {
-            seat.status = 'available';
-            location.availableSeats++;
+        // Handle multi-floor libraries
+        if (location.hasFloors && location.floors && booking.floorId) {
+            const floor = location.floors.find(f => f.floorNumber === booking.floorId);
+            if (floor) {
+                const seat = floor.seats.find(s => s.id === booking.seatId);
+                if (seat) {
+                    seat.status = 'available';
+                    floor.availableSeats++;
+                    location.availableSeats++;
+                }
+            }
+        } else {
+            // Single floor library
+            const seat = location.seats?.find(s => s.id === booking.seatId);
+            if (seat) {
+                seat.status = 'available';
+                location.availableSeats++;
+            }
         }
     }
 
@@ -1508,10 +1681,24 @@ function cancelGroupBooking(groupId) {
         const location = studyLocations.find(l => l.id === booking.locationId);
 
         if (location) {
-            const seat = location.seats.find(s => s.id === booking.seatId);
-            if (seat) {
-                seat.status = 'available';
-                location.availableSeats++;
+            // Handle multi-floor libraries
+            if (location.hasFloors && location.floors && booking.floorId) {
+                const floor = location.floors.find(f => f.floorNumber === booking.floorId);
+                if (floor) {
+                    const seat = floor.seats.find(s => s.id === booking.seatId);
+                    if (seat) {
+                        seat.status = 'available';
+                        floor.availableSeats++;
+                        location.availableSeats++;
+                    }
+                }
+            } else {
+                // Single floor library
+                const seat = location.seats?.find(s => s.id === booking.seatId);
+                if (seat) {
+                    seat.status = 'available';
+                    location.availableSeats++;
+                }
             }
         }
     });

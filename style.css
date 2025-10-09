@@ -397,6 +397,14 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     border-color: transparent;
 }
 
+/* Make emojis bigger in buttons */
+.emoji-large {
+    font-size: 1.4em;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.2em;
+}
+
 .locations-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -731,29 +739,52 @@ body.dark-theme .theme-toggle-btn:focus-visible {
 .seat-icons {
     display: flex;
     gap: 2px;
-    font-size: 0.6rem;
+    font-size: 0.8rem;
+    justify-content: center;
+}
+
+.seat-map.layout-grid .seat-icons,
+.seat-map.layout-lounge .seat-icons,
+.seat-map.layout-multimedia .seat-icons {
+    font-size: 0.75rem;
 }
 
 /* Custom Layout Styles for Woodlands Regional Library */
 .seat-map.layout-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
     max-width: 100%;
-    grid-template-columns: none;
+    justify-items: center;
+    padding: 20px;
 }
 
-.seat-map.layout-grid .furniture-row {
+.seat-map.layout-grid .table-group {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+}
+
+.seat-map.layout-grid .table-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background: var(--surface-alt-color);
+    padding: 5px 15px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+}
+
+.seat-map.layout-grid .seats-row {
+    display: flex;
+    gap: 10px;
     justify-content: center;
-    margin-bottom: 0;
 }
 
 .seat-map.layout-grid .table {
-    width: 80px;
-    height: 40px;
+    width: 180px;
+    height: 60px;
     background: #4caf50;
     border: 3px solid #388e3c;
     border-radius: 8px;
@@ -775,14 +806,14 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     display: flex;
     flex-direction: column;
     max-width: 100%;
-    grid-template-columns: none;
+    padding: 20px;
 }
 
 .seat-map.layout-lounge .lounge-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 60px;
-    justify-content: center;
-    flex-wrap: wrap;
+    justify-items: center;
 }
 
 .seat-map.layout-lounge .lounge-section {
@@ -791,16 +822,32 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     gap: 20px;
 }
 
-.seat-map.layout-lounge .furniture-row {
+.seat-map.layout-lounge .table-group {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+}
+
+.seat-map.layout-lounge .table-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background: var(--surface-alt-color);
+    padding: 5px 15px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+}
+
+.seat-map.layout-lounge .seats-row {
+    display: flex;
+    gap: 10px;
     justify-content: center;
 }
 
 .seat-map.layout-lounge .table {
-    width: 80px;
-    height: 40px;
+    width: 180px;
+    height: 60px;
     background: #4caf50;
     border: 3px solid #388e3c;
     border-radius: 8px;
@@ -839,7 +886,14 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     flex-direction: column;
     gap: 20px;
     max-width: 100%;
-    grid-template-columns: none;
+    padding: 20px;
+}
+
+.seat-map.layout-multimedia .table-groups-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    justify-items: center;
 }
 
 .seat-map.layout-multimedia .multimedia-label {
@@ -850,22 +904,38 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     font-size: 1.3em;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 0;
+    margin-bottom: 20px;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     letter-spacing: 1px;
+    width: 100%;
 }
 
-.seat-map.layout-multimedia .furniture-row {
+.seat-map.layout-multimedia .table-group {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+}
+
+.seat-map.layout-multimedia .table-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background: var(--surface-alt-color);
+    padding: 5px 15px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+}
+
+.seat-map.layout-multimedia .seats-row {
+    display: flex;
+    gap: 10px;
     justify-content: center;
-    margin-bottom: 0;
 }
 
 .seat-map.layout-multimedia .table {
-    width: 80px;
-    height: 40px;
+    width: 180px;
+    height: 60px;
     background: #4caf50;
     border: 3px solid #388e3c;
     border-radius: 8px;
@@ -884,23 +954,23 @@ body.dark-theme .theme-toggle-btn:focus-visible {
 
 /* Update seat colors for new layouts */
 .seat.available {
-    background-color: #2196f3;
-    border: 3px solid #1976d2;
+    background-color: #ff9800;
+    border: 3px solid #f57c00;
 }
 
 .seat.selected {
-    background-color: #ffeb3b;
-    color: #333;
-    border: 3px solid #fbc02d;
+    background-color: #2196f3;
+    color: white;
+    border: 3px solid #1976d2;
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
     0%, 100% {
-        box-shadow: 0 0 0 3px rgba(255, 235, 59, 0.5);
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.5);
     }
     50% {
-        box-shadow: 0 0 0 6px rgba(255, 235, 59, 0.7);
+        box-shadow: 0 0 0 6px rgba(33, 150, 243, 0.7);
     }
 }
 
@@ -1918,6 +1988,24 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     .floor-description {
         font-size: 0.85rem;
     }
+
+    .seat-map.layout-grid,
+    .seat-map.layout-lounge .lounge-container,
+    .seat-map.layout-multimedia .table-groups-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .floor-layout-container {
+        flex-direction: column;
+    }
+
+    .floor-layout-container .floor-selector {
+        position: relative;
+        top: 0;
+        max-width: 100%;
+        flex: 1;
+    }
 }
 
 /* Enhanced Filter Section Styles */
@@ -1946,6 +2034,7 @@ body.dark-theme .theme-toggle-btn:focus-visible {
 
 .region-filter-bar {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1rem;
