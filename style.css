@@ -766,16 +766,6 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     gap: 10px;
 }
 
-.seat-map.layout-grid .table-label {
-    font-weight: bold;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    background: var(--surface-alt-color);
-    padding: 5px 15px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-}
-
 .seat-map.layout-grid .seats-row {
     display: flex;
     gap: 10px;
@@ -789,6 +779,15 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     border: 3px solid #388e3c;
     border-radius: 8px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 18px rgba(56, 142, 60, 0.25);
 }
 
 .seat-map.layout-grid .seat {
@@ -829,16 +828,6 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     gap: 10px;
 }
 
-.seat-map.layout-lounge .table-label {
-    font-weight: bold;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    background: var(--surface-alt-color);
-    padding: 5px 15px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-}
-
 .seat-map.layout-lounge .seats-row {
     display: flex;
     gap: 10px;
@@ -852,16 +841,15 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     border: 3px solid #388e3c;
     border-radius: 8px;
     flex-shrink: 0;
-}
-
-.seat-map.layout-lounge .seat {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 18px rgba(56, 142, 60, 0.25);
 }
 
 .seat-map.layout-lounge .sofa-element {
@@ -878,6 +866,16 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     font-weight: bold;
     font-size: 1.2em;
     letter-spacing: 1px;
+}
+
+.seat-map .table-name {
+    margin: 0;
+}
+
+.seat-map .table {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Multimedia Layout Styles */
@@ -917,16 +915,6 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     gap: 10px;
 }
 
-.seat-map.layout-multimedia .table-label {
-    font-weight: bold;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    background: var(--surface-alt-color);
-    padding: 5px 15px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-}
-
 .seat-map.layout-multimedia .seats-row {
     display: flex;
     gap: 10px;
@@ -940,6 +928,15 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     border: 3px solid #388e3c;
     border-radius: 8px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 18px rgba(56, 142, 60, 0.25);
 }
 
 .seat-map.layout-multimedia .seat {
@@ -950,33 +947,6 @@ body.dark-theme .theme-toggle-btn:focus-visible {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-}
-
-/* Update seat colors for new layouts */
-.seat.available {
-    background-color: #ff9800;
-    border: 3px solid #f57c00;
-}
-
-.seat.selected {
-    background-color: #2196f3;
-    color: white;
-    border: 3px solid #1976d2;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.5);
-    }
-    50% {
-        box-shadow: 0 0 0 6px rgba(33, 150, 243, 0.7);
-    }
-}
-
-.seat.occupied {
-    background-color: #f44336;
-    border: 3px solid #c62828;
 }
 
 .booking-controls {

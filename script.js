@@ -917,11 +917,10 @@ function generateGridLayout(seats) {
         <div class="seat-map layout-grid" id="actualSeatMap">
             ${tables.map(table => `
                 <div class="table-group">
-                    <div class="table-label">${table.label}</div>
                     <div class="seats-row top">
                         ${table.seats.slice(0, 3).map(seat => generateSeatHTML(seat)).join('')}
                     </div>
-                    <div class="table"></div>
+                    <div class="table"><span class="table-name">${table.label}</span></div>
                     <div class="seats-row bottom">
                         ${table.seats.slice(3, 6).map(seat => generateSeatHTML(seat)).join('')}
                     </div>
@@ -938,11 +937,10 @@ function generateLoungeLayout(seats) {
             <div class="lounge-container">
                 <div class="lounge-section">
                     <div class="table-group">
-                        <div class="table-label">Table 1</div>
                         <div class="seats-row top">
                             ${seats.slice(0, 2).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
-                        <div class="table"></div>
+                        <div class="table"><span class="table-name">Table 1</span></div>
                         <div class="seats-row bottom">
                             ${seats.slice(2, 3).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
@@ -951,11 +949,10 @@ function generateLoungeLayout(seats) {
                         <div class="sofa-label">Sofa</div>
                     </div>
                     <div class="table-group">
-                        <div class="table-label">Table 2</div>
                         <div class="seats-row top">
                             ${seats.slice(3, 5).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
-                        <div class="table"></div>
+                        <div class="table"><span class="table-name">Table 2</span></div>
                         <div class="seats-row bottom">
                             ${seats.slice(5, 6).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
@@ -963,11 +960,10 @@ function generateLoungeLayout(seats) {
                 </div>
                 <div class="lounge-section">
                     <div class="table-group">
-                        <div class="table-label">Table 3</div>
                         <div class="seats-row top">
                             ${seats.slice(6, 7).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
-                        <div class="table"></div>
+                        <div class="table"><span class="table-name">Table 3</span></div>
                         <div class="seats-row bottom">
                             ${seats.slice(7, 8).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
@@ -976,11 +972,10 @@ function generateLoungeLayout(seats) {
                         <div class="sofa-label">Sofa</div>
                     </div>
                     <div class="table-group">
-                        <div class="table-label">Table 4</div>
                         <div class="seats-row top">
                             ${seats.slice(8, 10).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
-                        <div class="table"></div>
+                        <div class="table"><span class="table-name">Table 4</span></div>
                         <div class="seats-row bottom">
                             ${seats.slice(10, 11).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
@@ -1006,11 +1001,10 @@ function generateMultimediaLayout(seats) {
             <div class="table-groups-container">
                 ${tables.map(table => `
                     <div class="table-group">
-                        <div class="table-label">${table.label}</div>
                         <div class="seats-row top">
                             ${table.seats.slice(0, 3).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
-                        <div class="table"></div>
+                        <div class="table"><span class="table-name">${table.label}</span></div>
                         <div class="seats-row bottom">
                             ${table.seats.slice(3, 6).map(seat => generateSeatHTML(seat)).join('')}
                         </div>
